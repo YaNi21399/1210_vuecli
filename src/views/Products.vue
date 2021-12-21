@@ -90,7 +90,6 @@ export default {
       }
       const productComponent = this.$refs.productModal
       this.$http[httpMethod](api, { data: this.tempProduct }).then((response) => {
-        console.log(response)
         productComponent.hideModal()
         this.getProducts()
       })
