@@ -32,7 +32,7 @@ export default {
   name: 'Toast',
   props: ['msg'],
   mounted () {
-    const toastEl = this.$refs.toastEl
+    const toastEl = this.$refs.toast
     const toast = new Toast(toastEl, {
       delay: 6000
     })
