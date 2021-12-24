@@ -45,6 +45,8 @@
       </tr>
     </tbody>
   </table>
+  <Pagination :pages="pagination"
+  @emit-pages="getProducts"></Pagination>
   <ProductModal
     ref="productModal"
     :product="tempProduct"
@@ -60,6 +62,7 @@
 <script>
 import ProductModal from '../components/ProductModal.vue'
 import DeleteModal from '../components/DeleteModal.vue'
+import Pagination from '../components/Pagination.vue'
 
 export default {
   data () {
@@ -73,12 +76,13 @@ export default {
   },
   components: {
     ProductModal,
-    DeleteModal
+    DeleteModal,
+    Pagination
   },
   inject: ['emitter'],
   methods: {
-    getProducts () {
-      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products`
+    getProducts (page = 1) {
+      const api = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/admin/products/?page=${page}`
       this.isLoading = true
       this.$http.get(api).then((res) => {
         this.isLoading = false
@@ -116,20 +120,20 @@ export default {
       this.$http[httpMethod](api, { data: this.tempProduct }).then(
         (res) => {
           productComponent.hideModal()
-          if (res.data.success) {
-            this.getProducts()
-            this.emitter.emit('push-message', {
-              style: 'success',
-              title: '更新成功'
-            })
-          } else {
-            console.log(1)
-            this.emitter.emit('push-message', {
-              style: 'danger',
-              title: '更新失敗',
-              content: res.data.message.join('、')
-            })
-          }
+          this.getProducts()
+          // if (res.data.success) {
+          //   this.getProducts()
+          //   this.emitter.emit('push-message', {
+          //     style: 'success',
+          //     title: '更新成功'
+          //   })
+          // } else {
+          //   this.emitter.emit('push-message', {
+          //     style: 'danger',
+          //     title: '更新失敗',
+          //     content: res.data.message.join('、')
+          //   })
+          // }
         }
       )
       this.isLoading = false
