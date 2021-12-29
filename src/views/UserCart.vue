@@ -46,7 +46,11 @@
                   >
                     查看更多
                   </button>
-                  <button type="button" class="btn btn-outline-danger">
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="addCart(item.id)"
+                  >
                     加到購物車
                   </button>
                 </div>
@@ -65,19 +69,36 @@ export default {
   data () {
     return {
       products: [],
-      product: {}
+      product: {},
+      status: {
+        loadingItem: ''
+      }
     }
   },
   methods: {
     getProducts () {
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products/all`
+      // this.isLoading = true
       this.$http.get(url).then((response) => {
         this.products = response.data.products
         console.log('products:', response)
+        // this.isLoading = false
       })
     },
     getProduct (id) {
       this.$router.push(`/user/product/${id}`)
+    },
+    addCart (id) {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart`
+      this.status.loadingItem = id
+      const cart = {
+        product_id: id,
+        qty: 1
+      }
+      this.$http.post(url, { data: cart }).then((res) => {
+        this.status.loadingItem = ''
+        console.log(res)
+      })
     }
   },
   created () {
