@@ -46,7 +46,11 @@
                   >
                     查看更多
                   </button>
-                  <button type="button" class="btn btn-outline-danger">
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="addCart(item.id)"
+                  >
                     加到購物車
                   </button>
                 </div>
@@ -56,6 +60,73 @@
         </table>
       </div>
       <!-- 購物車列表 -->
+      <div class="col-md-5">
+        <div class="sticky-top">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th></th>
+                <th>品名</th>
+                <th style="width: 110px">數量</th>
+                <th>單價</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-if="cart.carts">
+                <tr  v-for="item in cart.carts" :key="item.id">
+                  <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                      :disabled="status.loadingItem === item.id"
+                      @click="removeCartItem(item.id)">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </td>
+                  <td>
+                    {{ item.product.title }}
+                    <div class="text-success">已套用優惠券</div>
+                  </td>
+                  <td>
+                    <div class="input-group input-group-sm">
+                      <input type="number" class="form-control"
+                       v-model.number="item.qty" min="1"
+                       :disabled="item.id === status.loadingItem"
+                       @change="updateCart(item)" />
+                      <div class="input-group-text">/ {{ item.product.unit }}</div>
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <small v-if="cart.final_total !==cart.total" class="text-success">折扣價：</small>
+                    {{ $filters.currency(item.final_total) }}
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="text-end">總計</td>
+                <td class="text-end">{{ $filters.currency(cart.total) }}</td>
+              </tr>
+              <tr>
+                <td colspan="3" class="text-end text-success">折扣價</td>
+                <td class="text-end text-success">{{ $filters.currency(cart.final_total) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="input-group mb-3 input-group-sm">
+            <input
+              type="text"
+              class="form-control"
+              v-model="coupon_code"
+              placeholder="請輸入優惠碼"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button" @click="addCoupon">
+                套用優惠碼
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -65,7 +136,12 @@ export default {
   data () {
     return {
       products: [],
-      product: {}
+      product: {},
+      status: {
+        loadingItem: ''
+      },
+      cart: {},
+      coupon_code: ''
     }
   },
   methods: {
@@ -73,15 +149,61 @@ export default {
       const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/products/all`
       this.$http.get(url).then((response) => {
         this.products = response.data.products
-        console.log('products:', response)
       })
     },
     getProduct (id) {
       this.$router.push(`/user/product/${id}`)
+    },
+    addCart (id) {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart`
+      this.status.loadingItem = id
+      const cart = {
+        product_id: id,
+        qty: 1
+      }
+      this.$http.post(url, { data: cart }).then((res) => {
+        this.status.loadingItem = ''
+        console.log(res)
+        this.getCart()
+      })
+    },
+    getCart () {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart`
+      this.$http.get(url).then((response) => {
+        this.cart = response.data.data
+        console.log(response)
+      })
+    },
+    removeCartItem () {
+
+    },
+    updateCart (item) {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/cart/${item.id}`
+      this.status.loadingItem = item.id
+      const cart = {
+        product_id: item.product_id,
+        qty: item.qty
+      }
+      this.$http.put(url, { data: cart }).then((res) => {
+        this.status.loadingItem = ''
+        this.getCart()
+      })
+    },
+    addCouponCode () {
+      const url = `${process.env.VUE_APP_API}api/${process.env.VUE_APP_PATH}/conpon`
+      const coupon = {
+        code: this.coupon_code
+      }
+      this.$http.post(url, { data: coupon }).then((res) => {
+        this.$httpMessageState(res, '加入優惠券')
+        console.log(res)
+        this.getCart()
+      })
     }
   },
   created () {
     this.getProducts()
+    this.getCart()
   }
 }
 </script>

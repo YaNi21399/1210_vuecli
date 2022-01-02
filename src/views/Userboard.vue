@@ -1,7 +1,7 @@
 <template>
   <nav class="nav navbar-expand-lg vav-dark bg-dark">
     <div class="container-fluid">
-      <router-link class="navbar-brand text-white" to="/user/cart">用戶端範例</router-link>
+      <Navbar></Navbar>
     </div>
   </nav>
   <div class="container-fluid nt-3 position-relative">
@@ -11,11 +11,17 @@
 </template>
 
 <script>
+import emitter from '@/methods/emitter'
 import ToastMessages from '@/components/ToastMessages.vue'
+import Navbar from '../components/Navbar'
 
 export default {
   components: {
-    ToastMessages
+    ToastMessages,
+    Navbar
+  },
+  provide: {
+    emitter
   }
 }
 </script>
