@@ -46,7 +46,8 @@
               type="date"
               class="form-control"
               id="due_date"
-              v-model="due_date"
+              v-model="tempCoupon.due_date"
+              pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"
             />
           </div>
           <div class="mb-3">
@@ -88,7 +89,7 @@
             class="btn btn-primary"
             @click="$emit('update-coupon', tempCoupon)"
           >
-            更新優惠券
+            確認
           </button>
         </div>
       </div>
@@ -108,7 +109,6 @@ export default {
   watch: {
     coupon () {
       this.tempCoupon = this.coupon
-      console.log(this.tempCoupon.due_date)
       const dateAndTime = new Date(this.tempCoupon.due_date * 1000)
         .toISOString()
         .split('T')
@@ -120,6 +120,7 @@ export default {
   },
   data () {
     return {
+      modal: {},
       tempCoupon: {
         // is_enabled = false
       },

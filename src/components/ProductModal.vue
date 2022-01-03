@@ -76,7 +76,6 @@
                   placeholder="請輸入標題"
                 />
               </div>
-
               <div class="row gx-2">
                 <div class="mb-3 col-md-6">
                   <label for="category" class="form-label">分類</label>
